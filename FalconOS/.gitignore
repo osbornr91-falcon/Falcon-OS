@@ -1,0 +1,21 @@
+/Architecture design docs/
+# Build outputs and ISOs
+*.o
+*.d
+*.iso
+*.bin
+*.elf
+build/
+bin/
+
+# Temporary files & Editor settings
+.DS_Store
+*.swp
+*.tmp
+.vscode/*
+!.vscode/tasks.json
+!.vscode/c_cpp_properties.json
+
+# Limine build artifacts (if compiled locally)
+limine/
+!limine.conf
