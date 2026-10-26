@@ -41,3 +41,15 @@ make -C falcon_os run
 ```
 
 The current kernel initializes the Limine framebuffer and CPU/memory topology, draws a white square, and halts. It is an early bootable prototype, not yet a complete operating system. Run `make -C falcon_os clean` to remove generated build outputs.
+
+## PLANNED FEATURES:
+-Intelligent automatic on-demand software adapter creation. Will allow windows and mac programs to run on Falcon OS without 3rd party adapter software.
+-Smart Antivirus. Designed to render programs innert unless authorized. 
+-Various operation modes. Will allow you to directly change the scheduler priority of specific applications during runtime and apply custom rules to govern these changes.
+-Offloaded Thinking. Allows you to run 1 or more Falcon OS instance in parallel on different systems to divide and process workloads in parallel
+-SAFER_1 AI. Includes a CPU based Deterministic Reasoning Engine called SAFER. This AI will not be automatically installed, and will assist in technical operations and system configurations, among other abilities.
+-Cluster mode for SERVER configurations. Allows you to one click add up to 20,000 Falcon OS nodes into a single compute cluster. (depending on hardware avaialable)
+-EZY Hardware integration agent. Allows for old or otherwise unknown hardware to be connected via a software adapter
+-FLIGHT Browser. Built in default browser for Falcon OS. (no not based on chromium) designed to block ads while providing fast and efficient browsing experience.
+
+And much more. Please put your suggestions for more features in the discussions tab!
