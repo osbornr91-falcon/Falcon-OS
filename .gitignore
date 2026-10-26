@@ -1,10 +1,12 @@
 /Architecture design docs/
+/.vscode/
 # Build outputs and ISOs
 *.o
 *.d
 *.iso
 *.bin
 *.elf
+falcon_os/iso_root/
 build/
 bin/
 

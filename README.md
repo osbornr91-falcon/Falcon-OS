@@ -25,3 +25,19 @@ Disclaimers:
 Use:
 -Please read LICENSE.md for license information.
 -While not mandatory, please credit me should you use the code here to make your own works. The code here is intended to allow authors of other projects to make programs that can be natively run on Falcon OS. 
+
+## Building the kernel prototype
+
+On Linux, install `make`, GCC, binutils, NASM, and `xorriso`. To build the bootable ISO from the repository root:
+
+```sh
+make -C falcon_os
+```
+
+To boot it in QEMU, install `qemu-system-x86_64` and run:
+
+```sh
+make -C falcon_os run
+```
+
+The current kernel initializes the Limine framebuffer and CPU/memory topology, draws a white square, and halts. It is an early bootable prototype, not yet a complete operating system. Run `make -C falcon_os clean` to remove generated build outputs.

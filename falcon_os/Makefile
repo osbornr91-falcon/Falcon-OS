@@ -2,13 +2,13 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra -O2 -pipe -Isrc \
          -ffreestanding -fno-stack-protector -fno-stack-check \
-         -fno-lto -fno-PIE -m64 -march=x86-64 -mno-red-zone
+         -fno-lto -fno-PIE -mcmodel=kernel -m64 -march=x86-64 -mno-red-zone
 
 NASM = nasm
 NASMFLAGS = -f elf64
 
 LD = ld
-LDFLAGS = -m elf_x86_64 -nostdlib -static -T linker.ld
+LDFLAGS = -m elf_x86_64 -nostdlib -static -z max-page-size=0x1000 -T linker.ld
 
 # Directories and Targets
 BUILD_DIR = build
@@ -42,8 +42,9 @@ $(KERNEL): $(OBJS)
 limine:
 	@if [ ! -d "limine" ]; then \
 		git clone https://github.com/limine-bootloader/limine.git --branch=v7.x-binary --depth=1; \
-		$(MAKE) -C limine; \
 	fi
+	$(MAKE) -C limine
+	chmod +x limine/limine
 
 # Package ISO
 $(ISO): $(KERNEL) limine
@@ -65,7 +66,7 @@ $(BUILD_DIR):
 
 # Run in QEMU
 run: $(ISO)
-	qemu-system-x86_64 -cdrom $(ISO) -d int,cpu_reset -no-reboot -no-shutdown
+	qemu-system-x86_64 -cdrom $(ISO)
 
 # Clean Build Artifacts
 clean:
