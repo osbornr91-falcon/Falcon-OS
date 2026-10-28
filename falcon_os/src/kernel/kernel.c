@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <limine.h>
 #include "topology.h"
+#include "idt.h"
 
 // Mandate Limine Protocol Version
 __attribute__((used, section(".requests")))
@@ -82,6 +83,10 @@ void kmain(void) {
 
     // Pass-up 'sys_topology' is now populated and ready for the scheduler!
 
-    // 5. Final Halt Loop
+    // 5. Install exception handlers and enable maskable interrupts
+    idt_init();
+    __asm__ volatile ("sti");
+
+    // 6. Final Halt Loop
     halt();
 }

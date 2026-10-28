@@ -1,6 +1,6 @@
 # Compiler and Assembler Flags
 CC = gcc
-CFLAGS = -std=c11 -Wall -Wextra -O2 -pipe -Isrc \
+CFLAGS = -std=c11 -Wall -Wextra -O2 -pipe -Isrc -Isrc/kernel -Isrc/Modules -Isrc/assists \
          -ffreestanding -fno-stack-protector -fno-stack-check \
          -fno-lto -fno-PIE -mcmodel=kernel -m64 -march=x86-64 -mno-red-zone
 
@@ -17,10 +17,10 @@ KERNEL = $(BUILD_DIR)/falcon_kernel
 ISO = falcon_os.iso
 
 # Source Files
-C_SRCS = $(wildcard src/*.c)
-ASM_SRCS = $(wildcard src/*.asm)
-OBJS = $(patsubst src/%.c, $(BUILD_DIR)/%.o, $(C_SRCS)) \
-       $(patsubst src/%.asm, $(BUILD_DIR)/%.o, $(ASM_SRCS))
+C_SRCS = $(shell find src -type f -name '*.c' | sort)
+ASM_SRCS = $(shell find src -type f -name '*.asm' | sort)
+OBJS = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(C_SRCS)) \
+       $(patsubst src/%.asm,$(BUILD_DIR)/%.o,$(ASM_SRCS))
 
 .PHONY: all run clean limine
 
@@ -28,10 +28,12 @@ all: $(ISO)
 
 # Compile C files
 $(BUILD_DIR)/%.o: src/%.c | $(BUILD_DIR)
+	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Assemble Assembly files
 $(BUILD_DIR)/%.o: src/%.asm | $(BUILD_DIR)
+	mkdir -p $(dir $@)
 	$(NASM) $(NASMFLAGS) $< -o $@
 
 # Link Kernel Binary
