@@ -63,5 +63,5 @@ isr_common_stub:
 
 ; Generate first few essential CPU exceptions (0 = Division Error, 14 = Page Fault, etc.)
 ISR_NO_ERRCODE 0
-ISR_NO_ERRCODE 6  ; Invalid Opcode
-ISR_ERRCODE    14 ; Page Fault
+ISR_NO_ERRCODE 6  ; Invalid Opcode because SOMEBODY CANT FOLLOW INSTRUCTIONS!!
+ISR_ERRCODE    14 ; Page Fault because clearly we have no idea what we are doing.

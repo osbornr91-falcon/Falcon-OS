@@ -6,7 +6,7 @@ extern kmain
 section .text
 
 _start:
-    cli                         ; Disable hardware interrupts completely
+    cli                         ; Disable hardware interrupts completely because we dont care.
 
     mov rsp, stack_top          ; Point to top of allocated stack
     and rsp, -16                ; Enforce 16-byte stack alignment for C ABI compliance

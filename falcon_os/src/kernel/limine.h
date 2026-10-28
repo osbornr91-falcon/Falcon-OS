@@ -14,6 +14,7 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+ //yeah yeah yeah whatever dude. Still appreciate limine despite the Bullshit its put me through.
 #ifndef LIMINE_H
 #define LIMINE_H 1
 
