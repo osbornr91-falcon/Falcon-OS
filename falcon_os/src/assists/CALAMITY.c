@@ -8,8 +8,10 @@ void calamity_panic(cpu_state_t *state) {
 
     (void)state;
 
-    // Halt the CPU forever I hate having to do this. 
+    // Halt the CPU forever. I hate having to do this. 
     //eventually figure out how to recover from a fatal exception.
+    //like make our version of the BSOD or something. 
+    // TODO: Remind me to make a master .json of all the error codes and their meanings/solutions. 
     __asm__ volatile("cli");
     for (;;) {
         __asm__ volatile("hlt");

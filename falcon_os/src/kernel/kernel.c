@@ -4,6 +4,8 @@
 #include <limine.h>
 #include "topology.h"
 #include "idt.h"
+#include "CommunicationBusController.h"
+#include "CommandLine.h"
 
 // Mandate Limine Protocol Version
 __attribute__((used, section(".requests")))
@@ -33,10 +35,30 @@ static volatile struct limine_memmap_request memmap_request = {
 // Global read-only pass-up structure for higher modules/scheduler
 static system_topology_t sys_topology;
 
+static bool kernel_shutdown_requested;
+static bool kernel_allstop_requested;
+
 static void halt(void) {
     for (;;) {
         __asm__ volatile ("cli; hlt");
     }
+}
+
+bool kernel_self_test(void) {
+    return communication_bus_send(COMMUNICATION_TARGET_KERNEL,
+                                  COMMUNICATION_STATUS_RESPONSE,
+                                  "KERNEL-OK",
+                                  sizeof("KERNEL-OK"));
+}
+
+void kernel_request_allstop(void) {
+    kernel_allstop_requested = true;
+    halt();
+}
+
+void kernel_request_shutdown(void) {
+    kernel_shutdown_requested = true;
+    halt();
 }
 
 void kmain(void) {
@@ -55,17 +77,9 @@ void kmain(void) {
     if (fb == NULL || fb->address == NULL) {
         halt();
     }
-
-    // Use volatile pointer to prevent GCC vectorization optimizations
-    volatile uint32_t *pixel_buffer = (volatile uint32_t *)fb->address;
-    size_t pitch_pixels = fb->pitch / 4;
-
-    // Render white 100x100 pixel square
-    for (size_t y = 0; y < 100; y++) {
-        for (size_t x = 0; x < 100; x++) {
-            pixel_buffer[y * pitch_pixels + x] = 0x00FFFFFF;
-        }
-    }
+    command_line_set_framebuffer(fb->address, fb->width, fb->height,
+                                 fb->pitch, fb->bpp, fb->red_mask_shift,
+                                 fb->green_mask_shift, fb->blue_mask_shift);
 
     // 3. Detect CPU Vendor & Core Information (Pass-Up)
     topology_detect_cpuid(&sys_topology);
@@ -83,10 +97,17 @@ void kmain(void) {
 
     // Pass-up 'sys_topology' is now populated and ready for the scheduler!
 
-    // 5. Install exception handlers and enable maskable interrupts
+    // 5. Start the Communication Bus Controller
+    communication_bus_init();
+
+    // 6. Start the first runnable module
+    command_line_init();
+    command_line_open();
+
+    // 7. Install exception handlers and enable maskable interrupts
     idt_init();
     __asm__ volatile ("sti");
 
-    // 6. Final Halt Loop
+    // Kernel startup complete. Module shutdown requests return here.
     halt();
 }

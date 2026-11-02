@@ -2,7 +2,8 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra -O2 -pipe -Isrc -Isrc/kernel -Isrc/Modules -Isrc/assists \
          -ffreestanding -fno-stack-protector -fno-stack-check \
-         -fno-lto -fno-PIE -mcmodel=kernel -m64 -march=x86-64 -mno-red-zone
+         -fno-lto -fno-PIE -mcmodel=kernel -m64 -march=x86-64 -mno-red-zone \
+         -mno-mmx -mno-sse -mno-sse2
 
 NASM = nasm
 NASMFLAGS = -f elf64

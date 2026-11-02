@@ -1,6 +1,7 @@
 bits 64
 
 extern exception_handler
+extern irq_handler
 
 ; Macro for exceptions without error codes (pushes a dummy error code)
 %macro ISR_NO_ERRCODE 1
@@ -65,3 +66,61 @@ isr_common_stub:
 ISR_NO_ERRCODE 0
 ISR_NO_ERRCODE 6  ; Invalid Opcode because SOMEBODY CANT FOLLOW INSTRUCTIONS!!
 ISR_ERRCODE    14 ; Page Fault because clearly we have no idea what we are doing.
+
+; Hardware IRQ wrappers. IRQs arrive without CPU error codes.
+%macro IRQ_STUB 1
+global irq%1
+irq%1:
+    push rax
+    push rbx
+    push rcx
+    push rdx
+    push rsi
+    push rdi
+    push rbp
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
+
+    mov rdi, %1 - 32
+    call irq_handler
+
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rbp
+    pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
+    iretq
+%endmacro
+
+IRQ_STUB 32
+IRQ_STUB 33
+IRQ_STUB 34
+IRQ_STUB 35
+IRQ_STUB 36
+IRQ_STUB 37
+IRQ_STUB 38
+IRQ_STUB 39
+IRQ_STUB 40
+IRQ_STUB 41
+IRQ_STUB 42
+IRQ_STUB 43
+IRQ_STUB 44
+IRQ_STUB 45
+IRQ_STUB 46
+IRQ_STUB 47

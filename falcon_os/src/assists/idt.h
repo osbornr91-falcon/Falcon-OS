@@ -22,5 +22,7 @@ typedef struct {
 
 void idt_init(void);
 void idt_set_gate(uint8_t vector, void* handler, uint16_t selector, uint8_t flags);
+uint64_t idt_get_irq1_count(void);
+uint64_t idt_get_irq12_count(void);
 
 #endif
