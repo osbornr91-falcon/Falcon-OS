@@ -28,5 +28,6 @@ bool command_line_test_systems(command_line_test_mask_t systems);
 bool command_line_self_test(void);
 void command_line_request_allstop(bool confirmed);
 void command_line_request_shutdown(void);
+void command_line_poll_keyboard(void);
 
 #endif

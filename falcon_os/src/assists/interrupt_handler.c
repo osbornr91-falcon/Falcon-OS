@@ -1,5 +1,6 @@
 #include "exception.h"
 #include "pic.h"
+#include "ps2_keyboard.h"
 
 static volatile uint64_t irq1_interrupt_count;
 static volatile uint64_t irq12_interrupt_count;
@@ -7,6 +8,7 @@ static volatile uint64_t irq12_interrupt_count;
 void irq_handler(uint8_t irq) {
     if (irq == 1) {
         irq1_interrupt_count++;
+        ps2_keyboard_handle_irq1();
     } else if (irq == 12) {
         irq12_interrupt_count++;
     }

@@ -48,7 +48,7 @@ void pic_init(void) {
     (void)slave_mask;
 
     /* Keep non-tested IRQs masked. IRQ 1 and IRQ 12 are enabled for plumbing. */
-    outb(PIC1_DATA, 0xF9);
+    outb(PIC1_DATA, 0xFB);
     outb(PIC2_DATA, 0xEF);
 }
 

@@ -6,6 +6,7 @@
 #include "idt.h"
 #include "CommunicationBusController.h"
 #include "CommandLine.h"
+#include "ps2_keyboard.h"
 
 // Mandate Limine Protocol Version
 __attribute__((used, section(".requests")))
@@ -106,8 +107,16 @@ void kmain(void) {
 
     // 7. Install exception handlers and enable maskable interrupts
     idt_init();
+    ps2_keyboard_init();
     __asm__ volatile ("sti");
 
-    // Kernel startup complete. Module shutdown requests return here.
-    halt();
+    // Kernel startup complete. Poll the PS/2 event queue and dispatch IPC events.
+    for (;;) {
+        ps2_key_event_t event;
+        if (ps2_keyboard_poll_event(&event)) {
+            (void)event;
+        }
+        command_line_poll_keyboard();
+        __asm__ volatile ("pause");
+    }
 }

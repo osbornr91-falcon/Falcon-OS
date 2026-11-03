@@ -1,5 +1,6 @@
 #include "CommandLine.h"
 #include "CommunicationBusController.h"
+#include "ps2_keyboard.h"
 
 static char command_line_output[4096];
 static size_t command_line_output_length;
@@ -11,6 +12,9 @@ static uint16_t command_line_framebuffer_bpp;
 static uint8_t command_line_red_shift;
 static uint8_t command_line_green_shift;
 static uint8_t command_line_blue_shift;
+static char command_line_input[128];
+static size_t command_line_input_length;
+static uint32_t command_line_last_bus_sequence;
 
 static void command_line_set_pixel(uint64_t x, uint64_t y,
                                    uint32_t color) {
@@ -200,6 +204,9 @@ void command_line_append_output(const char *text) {
 void command_line_init(void) {
     command_line_output[0] = '\0';
     command_line_output_length = 0;
+    command_line_input[0] = '\0';
+    command_line_input_length = 0;
+    command_line_last_bus_sequence = 0;
     command_line_append_output("Falcon OS command line module started.");
     command_line_append_output("Running output log:");
 }
@@ -331,4 +338,57 @@ bool command_line_run(const char *command) {
     }
     command_line_append_output("Unknown command.");
     return false;
+}
+
+void command_line_poll_keyboard(void) {
+    communication_channel_t channel;
+    if (!communication_bus_read(COMMUNICATION_TARGET_COMMAND_LINE, &channel) ||
+        channel.sequence == command_line_last_bus_sequence ||
+        channel.status[0] != COMMUNICATION_STATUS_READY ||
+        channel.length != sizeof(ps2_key_event_t)) {
+        return;
+    }
+
+    command_line_last_bus_sequence = channel.sequence;
+    ps2_key_event_t event;
+    if (channel.length != sizeof(event)) {
+        return;
+    }
+    uint8_t *event_bytes = (uint8_t *)&event;
+    for (size_t i = 0; i < sizeof(event); i++) {
+        event_bytes[i] = channel.payload[i];
+    }
+
+    if (!event.is_pressed) {
+        return;
+    }
+
+    if (event.ascii == '\n') {
+        command_line_input[command_line_input_length] = '\0';
+        command_line_append_output("System:>");
+        command_line_run(command_line_input);
+        command_line_input_length = 0;
+        command_line_input[0] = '\0';
+    } else if (event.ascii == 8) {
+        if (command_line_input_length > 0) {
+            command_line_input_length--;
+            command_line_input[command_line_input_length] = '\0';
+        }
+    } else if (event.ascii >= 32 && event.ascii <= 126 &&
+               command_line_input_length < sizeof(command_line_input) - 1) {
+        command_line_input[command_line_input_length++] = event.ascii;
+        command_line_input[command_line_input_length] = '\0';
+    }
+
+    if (command_line_framebuffer != NULL &&
+        command_line_framebuffer_height >= 16) {
+        uint64_t prompt_y = command_line_framebuffer_height - 16;
+        for (uint64_t yy = prompt_y; yy < command_line_framebuffer_height; yy++) {
+            for (uint64_t xx = 0; xx < command_line_framebuffer_width; xx++) {
+                command_line_set_pixel(xx, yy, 0x000000);
+            }
+        }
+        command_line_draw_columns(0, prompt_y, "FalconOS:Admin:>");
+        command_line_draw_columns(17 * 12, prompt_y, command_line_input);
+    }
 }
